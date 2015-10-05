@@ -4,7 +4,7 @@
 
 module.exports = function (_) {
 
-    function Resource(url, params, actions, options) {
+    function Resource(url, params, actions) {
 
         var self = this, resource = {};
 
@@ -15,7 +15,7 @@ module.exports = function (_) {
 
         _.each(actions, function (action, name) {
 
-            action = _.extend(true, {url: url, params: params || {}}, options, action);
+            action = _.extend(true, {url: url, params: params || {}}, action);
 
             resource[name] = function () {
                 return (self.$http || _.http)(opts(action, arguments));
