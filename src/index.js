@@ -14,13 +14,13 @@ function install(Vue) {
 
         $url: {
             get: function () {
-                return _.options(Vue.url, this, this.$options.url);
+                return this._url || (this._url = _.options(Vue.url, this, this.$options.url));
             }
         },
 
         $http: {
             get: function () {
-                return _.options(Vue.http, this, this.$options.http);
+                return this._http || (this._http = _.options(Vue.http, this, this.$options.http));
             }
         },
 
