@@ -3,67 +3,48 @@
  */
 
 var Promise = require('./promise');
-var Response = require('./response');
 
-module.exports = function (_) {
+module.exports = function (_, options) {
 
-    var handler;
+    var callback = '_jsonp' + Math.random().toString(36).substr(2), response = {}, script, body;
 
-    return {
+    options.params[options.jsonp] = callback;
 
-        send: function (request) {
+    if (_.isFunction(options.beforeSend)) {
+        options.beforeSend.call(this, {}, options);
+    }
 
-            var callback = '_jsonp' + Math.random().toString(36).substr(2), script, status, body;
+    return new Promise(function (resolve, reject) {
 
-            request.params[request.jsonp] = callback;
+        script = document.createElement('script');
+        script.src = _.url(options);
+        script.type = 'text/javascript';
+        script.async = true;
 
-            return new Promise(function (resolve) {
+        window[callback] = function (data) {
+            body = data;
+        };
 
-                script = document.createElement('script');
-                script.src = _.url(request);
-                script.type = 'text/javascript';
-                script.async = true;
+        var handler = function (event) {
 
-                window[callback] = function (data) {
-                    body = data;
-                };
+            delete window[callback];
+            document.body.removeChild(script);
 
-                handler = function (event) {
+            if (event.type === 'load' && !body) {
+                event.type = 'error';
+            }
 
-                    if (event.type === 'load') {
-                        delete window[callback];
-                        document.body.removeChild(script);
-                    }
+            response.ok = event.type !== 'error';
+            response.status = response.ok ? 200 : 404;
+            response.responseText = body ? body : event.type;
 
-                    if (event.type === 'load' && !body) {
-                        event.type = 'error';
-                    }
+            (response.ok ? resolve : reject)(response);
+        };
 
-                    switch (event.type) {
-                        case 'load':
-                            status = 200;
-                            break;
-                        case 'error':
-                            status = 404;
-                            break;
-                        default:
-                            status = 0;
-                    }
+        script.onload = handler;
+        script.onerror = handler;
 
-                    resolve(Response(body, status));
-                };
+        document.body.appendChild(script);
+    });
 
-                script.onload = handler;
-                script.onerror = handler;
-
-                document.body.appendChild(script);
-            });
-
-        },
-
-        cancel: function () {
-            handler({type: 'cancel'});
-        }
-
-    };
 };

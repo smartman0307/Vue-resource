@@ -4,13 +4,7 @@
 
 module.exports = function (Vue) {
 
-    var _ = Vue.util.extend({}, Vue.util), config = Vue.config;
-
-    _.warn = function (msg) {
-        if (window.console && (!config.silent || config.debug)) {
-            console.warn('[VueResource warn]: ' + msg);
-        }
-    };
+    var _ = Vue.util.extend({}, Vue.util);
 
     _.isString = function (value) {
         return typeof value === 'string';

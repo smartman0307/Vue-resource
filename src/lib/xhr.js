@@ -3,51 +3,49 @@
  */
 
 var Promise = require('./promise');
-var Response = require('./response');
+var XDomain = window.XDomainRequest;
 
-module.exports = function (_) {
+module.exports = function (_, options) {
 
-    var xhr, handler;
+    var request = new XMLHttpRequest(), promise;
 
-    return {
+    if (XDomain && options.crossOrigin) {
+        request = new XDomainRequest(); options.headers = {};
+    }
 
-        send: function (request) {
+    if (_.isPlainObject(options.xhr)) {
+        _.extend(request, options.xhr);
+    }
 
-            xhr = new XMLHttpRequest();
+    if (_.isFunction(options.beforeSend)) {
+        options.beforeSend.call(this, request, options);
+    }
 
-            if (request.crossOrigin && !('withCredentials' in xhr)) {
-                xhr = new XDomainRequest();
-                request.headers = {};
+    promise = new Promise(function (resolve, reject) {
+
+        request.open(options.method, _.url(options), true);
+
+        _.each(options.headers, function (value, header) {
+            request.setRequestHeader(header, value);
+        });
+
+        var handler = function (event) {
+
+            request.ok = event.type === 'load';
+
+            if (request.ok && request.status) {
+                request.ok = request.status >= 200 && request.status < 300;
             }
 
-            if (_.isPlainObject(request.xhr)) {
-                _.extend(xhr, request.xhr);
-            }
+            (request.ok ? resolve : reject)(request);
+        };
 
-            return new Promise(function (resolve) {
+        request.onload = handler;
+        request.onabort = handler;
+        request.onerror = handler;
 
-                xhr.open(request.method, _.url(request), true);
+        request.send(options.data);
+    });
 
-                _.each(request.headers, function (value, header) {
-                    xhr.setRequestHeader(header, value);
-                });
-
-                handler = function (event) {
-                    resolve(Response(xhr.responseText, xhr.status));
-                };
-
-                xhr.onload = handler;
-                xhr.onabort = handler;
-                xhr.onerror = handler;
-
-                xhr.send(request.data);
-            });
-
-        },
-
-        cancel: function () {
-            xhr.abort();
-        }
-
-    };
+    return promise;
 };
