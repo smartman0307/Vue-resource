@@ -67,6 +67,46 @@ The http service can be used globally `Vue.http` or in a Vue instance `this.$htt
 * **emulateJSON** - `boolean` -  Send request data as `application/x-www-form-urlencoded` content type
 * **xhr** - `Object` - Parameters object to be set on the native XHR object
 * **jsonp** - `string` - Callback function name in a JSONP request
+* **timeout** - `unsigned long` - Request timeout in milliseconds (`0` means no timeout)
+
+### Interceptors
+
+Interceptors can be defined globally and are used for pre- and postprocessing of a request.
+
+```javascript
+Vue.http.interceptors.push({
+
+    request: function (options) {
+        return options;
+    },
+
+    response: function (response) {
+        return response;
+    }
+
+});
+```
+
+#### Interceptor Factory
+
+If Promises are needed inside of a Interceptor, a factory function can be used.
+
+```javascript
+Vue.http.interceptors.push(function (Promise) {
+    return {
+           request: function (options) {
+               if (reject) {
+                   return Promise.reject();
+               }
+           },
+           response: function (response) {
+                 if (reject) {
+                    return Promise.reject();
+                 }
+           }
+       };
+});
+```
 
 ### Example
 
@@ -96,7 +136,7 @@ The resource service can be used globally `Vue.resource` or in a Vue instance `t
 
 ### Methods
 
-* `resource(url, [params], [actions], [options])`
+* `resource(url, [params], [actions])`
 
 ### Default Actions
 
