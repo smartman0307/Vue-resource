@@ -9,12 +9,12 @@ A Vue instance provides the `this.$http(options)` function which takes an option
 ```js
 new Vue({
 
-    ready() {
+    ready: function() {
 
       // GET request
-      this.$http({url: '/someUrl', method: 'GET'}).then((response) => {
+      this.$http({url: '/someUrl', method: 'GET'}).then(function (response) {
           // success callback
-      }, (response) => {
+      }, function (response) {
           // error callback
       });
 
@@ -78,10 +78,10 @@ emulateJSON | `boolean` | Send request data as `application/x-www-form-urlencode
 ```js
 new Vue({
 
-    ready() {
+    ready: function() {
 
       // GET request
-      this.$http.get('/someUrl').then((response) => {
+      this.$http.get('/someUrl').then(function (response) {
 
           // get status
           response.status;
@@ -95,7 +95,7 @@ new Vue({
           // set data on vm
           this.$set('someData', response.data)
 
-      }, (response) => {
+      }, function (response) {
 
           // error callback
       });
@@ -109,46 +109,34 @@ new Vue({
 
 Interceptors can be defined globally and are used for pre- and postprocessing of a request.
 
-### Request processing
 ```js
-Vue.http.interceptors.push((request, next) => {
+Vue.http.interceptors.push({
 
-    // modify request
-    request.method = 'POST';
+    request: function (request) {
+        return request;
+    },
 
-    // continue to next interceptor
-    next();
+    response: function (response) {
+        return response;
+    }
+
 });
 ```
 
-### Request and Response processing
+A factory function can also be used.
+
 ```js
-Vue.http.interceptors.push((request, next)  => {
+Vue.http.interceptors.push(function () {
+    return {
 
-    // modify request
-    request.method = 'POST';
+        request: function (request) {
+            return request;
+        },
 
-    // continue to next interceptor
-    next((response) => {
+        response: function (response) {
+            return response;
+        }
 
-        // modify response
-        response.data = '...';
-
-    });
-});
-```
-
-### Return a Response and stop processing
-```js
-Vue.http.interceptors.push((request, next) => {
-
-    // modify request ...
-
-    // stop and return response object
-    next({
-         data: '...',
-         status: 404,
-         statusText: 'Not found'
-    });
+    };
 });
 ```

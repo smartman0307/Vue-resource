@@ -5,19 +5,25 @@
 import Http from './index';
 import { extend, isPlainObject } from '../util';
 
-export default function (request, next) {
+const exports = {
 
-    request.method = request.method.toUpperCase();
-    request.headers = extend({}, Http.headers.common,
-        !request.crossOrigin ? Http.headers.custom : {},
-        Http.headers[request.method.toLowerCase()],
-        request.headers
-    );
+    request(request) {
 
-    if (isPlainObject(request.data) && /^(GET|JSONP)$/i.test(request.method)) {
-        extend(request.params, request.data);
-        delete request.data;
+        request.method = request.method.toUpperCase();
+        request.headers = extend({}, Http.headers.common,
+            !request.crossOrigin ? Http.headers.custom : {},
+            Http.headers[request.method.toLowerCase()],
+            request.headers
+        );
+
+        if (isPlainObject(request.data) && /^(GET|JSONP)$/i.test(request.method)) {
+            extend(request.params, request.data);
+            delete request.data;
+        }
+
+        return request;
     }
 
-    next();
-}
+};
+
+export default exports;

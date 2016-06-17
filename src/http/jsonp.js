@@ -4,11 +4,17 @@
 
 import jsonpClient from './client/jsonp';
 
-export default function (request, next) {
+const exports = {
 
-    if (request.method == 'JSONP') {
-        request.client = jsonpClient;
+    request(request) {
+
+        if (request.method == 'JSONP') {
+            request.client = jsonpClient;
+        }
+
+        return request;
     }
 
-    next();
-}
+};
+
+export default exports;

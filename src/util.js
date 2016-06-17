@@ -2,25 +2,23 @@
  * Utility functions.
  */
 
-import Promise from './promise';
-
-var debug = false, util = {}, array = [];
+var util = {}, config = {}, array = [], console = window.console;
 
 export default function (Vue) {
     util = Vue.util;
-    debug = Vue.config.debug || !Vue.config.silent;
+    config = Vue.config;
 }
 
 export const isArray = Array.isArray;
 
 export function warn(msg) {
-    if (typeof console !== 'undefined' && debug) {
+    if (console && util.warn && (!config.silent || config.debug)) {
         console.warn('[VueResource warn]: ' + msg);
     }
 }
 
 export function error(msg) {
-    if (typeof console !== 'undefined') {
+    if (console) {
         console.error(msg);
     }
 }
@@ -51,17 +49,6 @@ export function isObject(obj) {
 
 export function isPlainObject(obj) {
     return isObject(obj) && Object.getPrototypeOf(obj) == Object.prototype;
-}
-
-export function when(value, fulfilled, rejected) {
-
-    var promise = Promise.resolve(value);
-
-    if (arguments.length < 2) {
-        return promise;
-    }
-
-    return promise.then(fulfilled, rejected);
 }
 
 export function options(fn, obj, opts) {

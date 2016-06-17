@@ -4,11 +4,17 @@
 
 import { isFunction } from '../util';
 
-export default function (request, next) {
+const exports = {
 
-    if (isFunction(request.beforeSend)) {
-        request.beforeSend.call(this, request);
+    request(request) {
+
+        if (isFunction(request.beforeSend)) {
+            request.beforeSend.call(this, request);
+        }
+
+        return request;
     }
 
-    next();
-}
+};
+
+export default exports;
