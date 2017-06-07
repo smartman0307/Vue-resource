@@ -16,7 +16,7 @@ export default function (context) {
     }
 
     function Client(request) {
-        return new Promise((resolve, reject) => {
+        return new Promise(resolve => {
 
             function exec() {
 
@@ -44,7 +44,7 @@ export default function (context) {
                         });
                     });
 
-                    when(response, resolve, reject);
+                    when(response, resolve);
 
                     return;
                 }
