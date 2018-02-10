@@ -2,7 +2,8 @@
  * JSON Interceptor.
  */
 
-import {when, isObject} from '../../util';
+import Url from '../../url/index';
+import { when, isObject } from '../../util';
 
 export default function (request, next) {
 
